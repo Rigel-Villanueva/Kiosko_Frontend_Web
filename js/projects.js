@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── State ──
     let allProjects = [];
     let currentEditAutores = [];
-    let currentEditTech = [];
     let originalProject = null;
 
     // ── DOM References ──
@@ -73,13 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </td>
                 <td>
-                    <div class="chip-list" style="flex-wrap: nowrap; max-width: 250px; overflow:hidden;">
-                        ${(p.tecnologias && p.tecnologias.length > 0) 
-                            ? p.tecnologias.map(t => `<span class="chip" style="font-size:0.7rem; padding: 2px 6px; background:#4f46e5; color:white; border:none;">${t}</span>`).join('') 
-                            : '<span style="color:var(--text-muted); font-size:0.8rem;">Ninguna</span>'}
-                    </div>
-                </td>
-                <td>
                     <span class="badge ${p.estatus.toLowerCase()}">${p.estatus}</span>
                 </td>
                 <td>
@@ -107,18 +99,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editDescripcion').value = originalProject.descripcion;
         document.getElementById('editRepoGit').value = originalProject.evidencias?.repositorioGit || '';
 
-        // Listas (Autores / Tecnologías) clonan para no mutar el estado original aún
+        // Listas (Autores) clonan para no mutar el estado original aún
         currentEditAutores = [...(originalProject.autoresCorreos || [])];
-        currentEditTech = [...(originalProject.tecnologias || [])];
 
         renderChips('editAutoresList', currentEditAutores, (idx) => {
             currentEditAutores.splice(idx, 1);
             renderChips('editAutoresList', currentEditAutores, arguments.callee);
-        });
-
-        renderChips('editTechList', currentEditTech, (idx) => {
-            currentEditTech.splice(idx, 1);
-            renderChips('editTechList', currentEditTech, arguments.callee);
         });
 
         modal.style.display = 'flex';
@@ -160,7 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     setupAdder('editAutorInput', 'editAddAutor', currentEditAutores, 'editAutoresList');
-    setupAdder('editTechInput', 'editAddTech', currentEditTech, 'editTechList');
 
     function renderChips(containerId, list, onRemove) {
         const container = document.getElementById(containerId);
@@ -186,7 +171,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updatedProject.nombre = document.getElementById('editNombre').value.trim();
         updatedProject.descripcion = document.getElementById('editDescripcion').value.trim();
         updatedProject.autoresCorreos = currentEditAutores;
-        updatedProject.tecnologias = currentEditTech;
 
         // Asegurar que exista evidencias antes de mutarla
         if (!updatedProject.evidencias) updatedProject.evidencias = {};
