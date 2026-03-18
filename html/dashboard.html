@@ -29,6 +29,10 @@
                 </svg>
                 <span class="topbar-title">Kiosko Admin</span>
             </div>
+            <nav class="topbar-nav">
+                <a href="dashboard.html" class="nav-link active">📤 Subir Proyecto</a>
+                <a href="projects.html" class="nav-link">📋 Proyectos</a>
+            </nav>
             <div class="topbar-right">
                 <span class="topbar-user" id="userName">Admin</span>
                 <button class="btn btn-ghost btn-sm" id="logoutBtn">Cerrar Sesión</button>
@@ -77,14 +81,21 @@
                 <section class="form-section card">
                     <h2 class="section-title">
                         <span class="section-icon">👥</span>
-                        Autores
+                        Autores y Tecnologías
                     </h2>
 
                     <div class="author-add-row">
                         <input class="form-input" type="text" id="autorInput" placeholder="Nombre del autor">
                         <button type="button" class="btn btn-primary btn-sm" id="addAutorBtn">+ Agregar</button>
                     </div>
-                    <div class="chip-list" id="autoresList"></div>
+                    <div class="chip-list" id="autoresList" style="margin-bottom: 24px;"></div>
+                    
+                    <h3 class="form-label" style="margin-bottom: 8px;">Tecnologías</h3>
+                    <div class="author-add-row">
+                        <input class="form-input" type="text" id="techInput" placeholder="Ej: React, Node.js, MongoDB">
+                        <button type="button" class="btn btn-primary btn-sm" id="addTechBtn">+ Agregar</button>
+                    </div>
+                    <div class="chip-list" id="techList"></div>
                 </section>
 
                 <!-- Section: Videos -->

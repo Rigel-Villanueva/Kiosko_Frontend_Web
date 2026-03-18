@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── State ──
     const autores = [];
+    const tecnologias = [];
     const selectedFiles = {
         videoIntro: null,
         videoPitch: null,
@@ -67,6 +68,46 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
         autoresList.querySelectorAll('.chip-remove').forEach(btn => {
             btn.addEventListener('click', () => removeAutor(btn.dataset.nombre));
+        });
+    }
+
+    // ════════════════════════════════════════════════════════
+    // TECNOLOGÍAS — Agregar / Quitar chips
+    // ════════════════════════════════════════════════════════
+    const techInput = document.getElementById('techInput');
+    const techList = document.getElementById('techList');
+    const addTechBtn = document.getElementById('addTechBtn');
+
+    addTechBtn.addEventListener('click', addTech);
+    techInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addTech(); }
+    });
+
+    function addTech() {
+        const tech = techInput.value.trim();
+        if (!tech) return;
+        if (tecnologias.includes(tech)) { showToast('Esa tecnología ya está agregada', 'warning'); return; }
+        tecnologias.push(tech);
+        renderTech();
+        techInput.value = '';
+        techInput.focus();
+    }
+
+    function removeTech(tech) {
+        const idx = tecnologias.indexOf(tech);
+        if (idx !== -1) tecnologias.splice(idx, 1);
+        renderTech();
+    }
+
+    function renderTech() {
+        techList.innerHTML = tecnologias.map(tech => `
+            <div class="chip">
+                <span>${tech}</span>
+                <span class="chip-remove" data-tech="${tech}">&times;</span>
+            </div>
+        `).join('');
+        techList.querySelectorAll('.chip-remove').forEach(btn => {
+            btn.addEventListener('click', () => removeTech(btn.dataset.tech));
         });
     }
 
@@ -207,6 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 nombre,
                 descripcion,
                 autoresCorreos: [...autores],
+                tecnologias: [...tecnologias],
                 evidencias: {
                     repositorioGit: repoGit || null,
                     videos,
@@ -282,7 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetForm() {
         form.reset();
         autores.length = 0;
+        tecnologias.length = 0;
         renderAutores();
+        renderTech();
         selectedFiles.videoIntro = null;
         selectedFiles.videoPitch = null;
         selectedFiles.imagenes = [];

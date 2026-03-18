@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosko Admin — Proyectos</title>
+    <meta name="description" content="Lista de proyectos del Kiosko Escolar. Edita y gestiona todos los proyectos.">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/projects.css">
+</head>
+<body>
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ─── Top Bar ─── -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-brand">
+                <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
+                    <rect width="48" height="48" rx="14" fill="url(#g1)"/>
+                    <path d="M14 32V18l10-6 10 6v14l-10 6-10-6Z" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M24 24v12M14 18l10 6 10-6" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="topbar-title">Kiosko Admin</span>
+            </div>
+            <nav class="topbar-nav">
+                <a href="dashboard.html" class="nav-link">📤 Subir Proyecto</a>
+                <a href="projects.html" class="nav-link active">📋 Proyectos</a>
+            </nav>
+            <div class="topbar-right">
+                <span class="topbar-user" id="userName">Admin</span>
+                <button class="btn btn-ghost btn-sm" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── Main Content ─── -->
+    <main class="dashboard-main">
+        <div class="container-wide">
+            <!-- Page heading -->
+            <div class="page-header">
+                <h1 class="page-title">Proyectos</h1>
+                <p class="page-subtitle">Lista de todos los proyectos. Haz clic en <strong>Editar</strong> para modificar cualquier proyecto.</p>
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <span>Cargando proyectos…</span>
+            </div>
+
+            <!-- Empty state -->
+            <div id="emptyState" class="empty-state" style="display:none;">
+                <span class="empty-icon">📭</span>
+                <p>No hay proyectos registrados.</p>
+            </div>
+
+            <!-- Projects table -->
+            <div class="table-wrapper card" id="tableWrapper" style="display:none;">
+                <table class="projects-table" id="projectsTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Autores</th>
+                            <th>Tecnologías</th>
+                            <th>Estatus</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- ─── Edit Modal ─── -->
+    <div class="modal-overlay" id="editModal" style="display:none;">
+        <div class="modal card">
+            <div class="modal-header">
+                <h2 class="modal-title">Editar Proyecto</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+
+            <form id="editForm" class="modal-body">
+                <input type="hidden" id="editId">
+
+                <div class="form-group">
+                    <label class="form-label" for="editNombre">Nombre del Proyecto</label>
+                    <input class="form-input" type="text" id="editNombre">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="editDescripcion">Descripción</label>
+                    <textarea class="form-textarea" id="editDescripcion"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="editRepoGit">Repositorio Git</label>
+                    <input class="form-input" type="url" id="editRepoGit" placeholder="https://github.com/...">
+                </div>
+
+                <!-- Autores -->
+                <div class="form-group">
+                    <label class="form-label">Autores</label>
+                    <div class="author-add-row">
+                        <input class="form-input" type="text" id="editAutorInput" placeholder="Nombre del autor">
+                        <button type="button" class="btn btn-primary btn-sm" id="editAddAutor">+ Agregar</button>
+                    </div>
+                    <div class="chip-list" id="editAutoresList"></div>
+                </div>
+
+                <!-- Tecnologías -->
+                <div class="form-group">
+                    <label class="form-label">Tecnologías</label>
+                    <div class="author-add-row">
+                        <input class="form-input" type="text" id="editTechInput" placeholder="Ej: React, Node.js, MongoDB">
+                        <button type="button" class="btn btn-primary btn-sm" id="editAddTech">+ Agregar</button>
+                    </div>
+                    <div class="chip-list" id="editTechList"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" id="cancelEdit">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="saveEditBtn">
+                        <span id="saveEditText">💾 Guardar Cambios</span>
+                        <div class="spinner" id="saveSpinner" style="display:none;"></div>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/projects.js"></script>
+</body>
+</html>
