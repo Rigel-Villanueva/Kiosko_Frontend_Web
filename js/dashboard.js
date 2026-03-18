@@ -43,37 +43,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function addAutor() {
-        const email = autorInput.value.trim().toLowerCase();
-        if (!email) return;
-        if (!email.includes('@')) { showToast('Ingresa un correo válido', 'warning'); return; }
-        if (autores.includes(email)) { showToast('Ese correo ya está agregado', 'warning'); return; }
-        autores.push(email);
+        const nombre = autorInput.value.trim();
+        if (!nombre) return;
+        if (autores.includes(nombre)) { showToast('Ese nombre ya está agregado', 'warning'); return; }
+        autores.push(nombre);
         renderAutores();
         autorInput.value = '';
         autorInput.focus();
     }
 
-    function removeAutor(email) {
-        const idx = autores.indexOf(email);
+    function removeAutor(nombre) {
+        const idx = autores.indexOf(nombre);
         if (idx !== -1) autores.splice(idx, 1);
         renderAutores();
     }
 
     function renderAutores() {
-        autoresList.innerHTML = autores.map(email => `
+        autoresList.innerHTML = autores.map(nombre => `
             <div class="chip">
-                <span>${email}</span>
-                <span class="chip-remove" data-email="${email}">&times;</span>
+                <span>${nombre}</span>
+                <span class="chip-remove" data-nombre="${nombre}">&times;</span>
             </div>
         `).join('');
         autoresList.querySelectorAll('.chip-remove').forEach(btn => {
-            btn.addEventListener('click', () => removeAutor(btn.dataset.email));
+            btn.addEventListener('click', () => removeAutor(btn.dataset.nombre));
         });
     }
 
     // ════════════════════════════════════════════════════════
     // FILE INPUTS — Capturar archivos seleccionados
     // ════════════════════════════════════════════════════════
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+
     setupSingleFile('videoIntro', 'fileListIntro', 'videoIntro');
     setupSingleFile('videoPitch', 'fileListPitch', 'videoPitch');
     setupMultipleFiles('imagenes', 'fileListImages', 'imagenes');
@@ -85,8 +86,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = document.getElementById(listId);
         input.addEventListener('change', () => {
             if (input.files.length > 0) {
-                selectedFiles[stateKey] = input.files[0];
-                renderFileList(list, [input.files[0]], (idx) => {
+                const file = input.files[0];
+                if (file.size > MAX_FILE_SIZE) {
+                    showToast(`"${file.name}" excede 50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
+                    input.value = '';
+                    return;
+                }
+                selectedFiles[stateKey] = file;
+                renderFileList(list, [file], (idx) => {
                     selectedFiles[stateKey] = null;
                     input.value = '';
                     list.innerHTML = '';
@@ -100,7 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const list = document.getElementById(listId);
         input.addEventListener('change', () => {
             const newFiles = Array.from(input.files);
-            selectedFiles[stateKey] = [...selectedFiles[stateKey], ...newFiles];
+            const rejected = newFiles.filter(f => f.size > MAX_FILE_SIZE);
+            const accepted = newFiles.filter(f => f.size <= MAX_FILE_SIZE);
+            if (rejected.length > 0) {
+                rejected.forEach(f => showToast(`"${f.name}" excede 50 MB (${(f.size / 1024 / 1024).toFixed(1)} MB)`, 'error'));
+            }
+            selectedFiles[stateKey] = [...selectedFiles[stateKey], ...accepted];
             renderFileList(list, selectedFiles[stateKey], (idx) => {
                 selectedFiles[stateKey].splice(idx, 1);
                 renderFileList(list, selectedFiles[stateKey], arguments.callee);
@@ -144,10 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const nombre = document.getElementById('nombre').value.trim();
         const descripcion = document.getElementById('descripcion').value.trim();
         const repoGit = document.getElementById('repoGit').value.trim();
-
-        // Validaciones
-        if (!nombre) { showToast('El nombre del proyecto es requerido', 'error'); return; }
-        if (!descripcion) { showToast('La descripción es requerida', 'error'); return; }
 
         // Preparar lista de archivos a subir
         const uploadTasks = [];
