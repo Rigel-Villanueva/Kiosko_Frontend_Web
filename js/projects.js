@@ -100,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editRepoGit').value = originalProject.evidencias?.repositorioGit || '';
 
         // Listas (Autores) clonan para no mutar el estado original aún
-        currentEditAutores = [...(originalProject.autoresCorreos || [])];
+        currentEditAutores.length = 0;
+        if (originalProject.autoresCorreos) {
+            currentEditAutores.push(...originalProject.autoresCorreos);
+        }
 
         renderChips('editAutoresList', currentEditAutores, (idx) => {
             currentEditAutores.splice(idx, 1);
