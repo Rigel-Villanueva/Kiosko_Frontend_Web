@@ -1,0 +1,171 @@
+/* ============================================================
+   login.css — Estilos exclusivos de la pantalla de Login
+   ============================================================ */
+
+/* ─── Animated Background Orbs ─── */
+.bg-orbs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.4;
+    animation: float 18s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, #6366f1, transparent 70%);
+    top: -10%;
+    left: -10%;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, #8b5cf6, transparent 70%);
+    bottom: -15%;
+    right: -10%;
+    animation-delay: -6s;
+}
+
+.orb-3 {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, #6366f1, transparent 70%);
+    top: 50%;
+    left: 60%;
+    animation-delay: -12s;
+}
+
+@keyframes float {
+    0%   { transform: translate(0, 0) scale(1); }
+    33%  { transform: translate(40px, -30px) scale(1.08); }
+    66%  { transform: translate(-20px, 20px) scale(0.95); }
+    100% { transform: translate(10px, -10px) scale(1.03); }
+}
+
+/* ─── Login Wrapper ─── */
+.login-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ─── Login Card ─── */
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ─── Header ─── */
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+    50%      { filter: drop-shadow(0 0 20px var(--accent-glow)); }
+}
+
+.login-title {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.login-subtitle {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* ─── Password Toggle ─── */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper .form-input {
+    padding-right: 48px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px;
+    transition: color var(--transition-fast);
+}
+.toggle-password:hover {
+    color: var(--text-primary);
+}
+
+/* ─── Error Box ─── */
+.login-error {
+    margin-top: 16px;
+    padding: 0;
+    font-size: 0.85rem;
+    color: var(--danger);
+    font-weight: 500;
+    text-align: center;
+    min-height: 20px;
+    transition: all var(--transition-fast);
+}
+
+/* ─── Submit Button ─── */
+.btn-login {
+    width: 100%;
+    margin-top: 24px;
+    padding: 14px;
+    font-size: 1rem;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 480px) {
+    .login-card {
+        max-width: 100%;
+    }
+    .login-title {
+        font-size: 1.5rem;
+    }
+}

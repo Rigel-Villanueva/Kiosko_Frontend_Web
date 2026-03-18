@@ -1,0 +1,190 @@
+/* ============================================================
+   dashboard.css — Estilos exclusivos del Dashboard Admin
+   ============================================================ */
+
+/* ─── Top Bar ─── */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11, 15, 25, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 14px 24px;
+}
+
+.topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.topbar-user {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ─── Page Header ─── */
+.dashboard-main {
+    padding: 40px 0 80px;
+}
+
+.page-header {
+    margin-bottom: 36px;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.page-title {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.page-subtitle strong {
+    color: var(--success);
+}
+
+/* ─── Form sections ─── */
+.project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.form-section {
+    animation: fadeInUp 0.5s ease forwards;
+    animation-fill-mode: both;
+}
+.form-section:nth-child(1) { animation-delay: 0.05s; }
+.form-section:nth-child(2) { animation-delay: 0.10s; }
+.form-section:nth-child(3) { animation-delay: 0.15s; }
+.form-section:nth-child(4) { animation-delay: 0.20s; }
+.form-section:nth-child(5) { animation-delay: 0.25s; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.15rem;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.section-icon {
+    font-size: 1.3rem;
+}
+
+/* ─── Form Grid ─── */
+.form-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.form-grid.two-cols {
+    grid-template-columns: 1fr 1fr;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* ─── Author Row ─── */
+.author-add-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.author-add-row .form-input {
+    flex: 1;
+}
+
+/* ─── Upload Progress ─── */
+.upload-progress-wrapper {
+    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+/* ─── Submit Button ─── */
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.05rem;
+    margin-top: 8px;
+}
+
+/* ─── Drag & Drop active state ─── */
+.upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(99, 102, 241, 0.08);
+    transform: scale(1.01);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+    .form-grid.two-cols {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar-user {
+        display: none;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .author-add-row {
+        flex-direction: column;
+    }
+}

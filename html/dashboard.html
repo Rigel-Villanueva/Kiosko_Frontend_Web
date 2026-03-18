@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosko Admin — Subir Proyecto</title>
+    <meta name="description" content="Sube proyectos de estudiantes como administrador del Kiosko Escolar.">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+<body>
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ─── Top Bar ─── -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="topbar-brand">
+                <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
+                    <rect width="48" height="48" rx="14" fill="url(#g1)"/>
+                    <path d="M14 32V18l10-6 10 6v14l-10 6-10-6Z" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                    <path d="M24 24v12M14 18l10 6 10-6" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#8b5cf6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="topbar-title">Kiosko Admin</span>
+            </div>
+            <div class="topbar-right">
+                <span class="topbar-user" id="userName">Admin</span>
+                <button class="btn btn-ghost btn-sm" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ─── Main Content ─── -->
+    <main class="dashboard-main">
+        <div class="container">
+            <!-- Page heading -->
+            <div class="page-header">
+                <h1 class="page-title">Subir Proyecto</h1>
+                <p class="page-subtitle">Completa la información del proyecto y sube las evidencias. El proyecto se publicará como <strong>aprobado</strong>.</p>
+            </div>
+
+            <!-- ─── Project Form ─── -->
+            <form id="projectForm" class="project-form">
+
+                <!-- Section: Info básica -->
+                <section class="form-section card">
+                    <h2 class="section-title">
+                        <span class="section-icon">📋</span>
+                        Información General
+                    </h2>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label class="form-label" for="nombre">Nombre del Proyecto *</label>
+                            <input class="form-input" type="text" id="nombre" placeholder="Ej: Sistema de Gestión Escolar" required>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="descripcion">Descripción *</label>
+                            <textarea class="form-textarea" id="descripcion" placeholder="Describe brevemente de qué trata el proyecto…" required></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label class="form-label" for="repoGit">Repositorio Git (opcional)</label>
+                            <input class="form-input" type="url" id="repoGit" placeholder="https://github.com/usuario/proyecto">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Autores -->
+                <section class="form-section card">
+                    <h2 class="section-title">
+                        <span class="section-icon">👥</span>
+                        Autores
+                    </h2>
+
+                    <div class="author-add-row">
+                        <input class="form-input" type="email" id="autorInput" placeholder="correo@ejemplo.com">
+                        <button type="button" class="btn btn-primary btn-sm" id="addAutorBtn">+ Agregar</button>
+                    </div>
+                    <div class="chip-list" id="autoresList"></div>
+                </section>
+
+                <!-- Section: Videos -->
+                <section class="form-section card">
+                    <h2 class="section-title">
+                        <span class="section-icon">🎬</span>
+                        Videos
+                    </h2>
+
+                    <div class="form-grid two-cols">
+                        <div class="form-group">
+                            <label class="form-label">Video Intro</label>
+                            <div class="upload-zone" id="zoneIntro">
+                                <span class="upload-icon">🎥</span>
+                                <span>Arrastra o haz clic para subir</span>
+                                <small>MP4, MOV, WEBM — máx 150 MB</small>
+                                <input type="file" accept="video/*" id="videoIntro">
+                            </div>
+                            <div class="file-list" id="fileListIntro"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Video Pitch</label>
+                            <div class="upload-zone" id="zonePitch">
+                                <span class="upload-icon">🎤</span>
+                                <span>Arrastra o haz clic para subir</span>
+                                <small>MP4, MOV, WEBM — máx 150 MB</small>
+                                <input type="file" accept="video/*" id="videoPitch">
+                            </div>
+                            <div class="file-list" id="fileListPitch"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section: Imágenes -->
+                <section class="form-section card">
+                    <h2 class="section-title">
+                        <span class="section-icon">🖼️</span>
+                        Imágenes
+                    </h2>
+
+                    <div class="upload-zone" id="zoneImages">
+                        <span class="upload-icon">📷</span>
+                        <span>Arrastra o haz clic para subir imágenes</span>
+                        <small>JPG, PNG, WEBP — Múltiples archivos</small>
+                        <input type="file" accept="image/*" multiple id="imagenes">
+                    </div>
+                    <div class="file-list" id="fileListImages"></div>
+                </section>
+
+                <!-- Section: Documentos -->
+                <section class="form-section card">
+                    <h2 class="section-title">
+                        <span class="section-icon">📄</span>
+                        Documentos y Diapositivas
+                    </h2>
+
+                    <div class="form-grid two-cols">
+                        <div class="form-group">
+                            <label class="form-label">Documentos PDF</label>
+                            <div class="upload-zone" id="zonePdf">
+                                <span class="upload-icon">📝</span>
+                                <span>Arrastra o haz clic</span>
+                                <small>PDF — Múltiples archivos</small>
+                                <input type="file" accept=".pdf" multiple id="documentosPdf">
+                            </div>
+                            <div class="file-list" id="fileListPdf"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Diapositivas</label>
+                            <div class="upload-zone" id="zoneDiapositiva">
+                                <span class="upload-icon">📊</span>
+                                <span>Arrastra o haz clic</span>
+                                <small>PPTX, PDF</small>
+                                <input type="file" accept=".pptx,.pdf" id="diapositivas">
+                            </div>
+                            <div class="file-list" id="fileListDiapo"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ─── Global Progress ─── -->
+                <div class="upload-progress-wrapper" id="progressWrapper" style="display:none;">
+                    <div class="progress-label">
+                        <span id="progressText">Subiendo archivos…</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" class="btn btn-primary btn-submit" id="submitBtn">
+                    <span class="btn-text" id="submitText">🚀 Publicar Proyecto</span>
+                    <div class="spinner" id="submitSpinner" style="display:none;"></div>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

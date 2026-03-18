@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiosko Admin — Iniciar Sesión</title>
+    <meta name="description" content="Panel de administración del Kiosko Escolar. Inicia sesión para gestionar proyectos.">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/login.css">
+</head>
+<body>
+    <!-- Animated background orbs -->
+    <div class="bg-orbs" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <main class="login-wrapper">
+        <div class="login-card card">
+            <!-- Logo / Branding -->
+            <div class="login-header">
+                <div class="login-logo">
+                    <svg viewBox="0 0 48 48" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="48" height="48" rx="14" fill="url(#g1)"/>
+                        <path d="M14 32V18l10-6 10 6v14l-10 6-10-6Z" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                        <path d="M24 24v12M14 18l10 6 10-6" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="g1" x1="0" y1="0" x2="48" y2="48">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1 class="login-title">Kiosko Admin</h1>
+                <p class="login-subtitle">Panel de Administración</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" autocomplete="on">
+                <div class="form-group">
+                    <label class="form-label" for="correo">Correo electrónico</label>
+                    <input
+                        class="form-input"
+                        type="email"
+                        id="correo"
+                        name="correo"
+                        placeholder="admin@correo.com"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="password-wrapper">
+                        <input
+                            class="form-input"
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar contraseña">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error message -->
+                <div class="login-error" id="loginError"></div>
+
+                <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <div class="spinner" id="loginSpinner" style="display:none;"></div>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/login.js"></script>
+</body>
+</html>
