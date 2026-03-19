@@ -144,11 +144,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawAutores() {
         editAutoresList.innerHTML = currentEditAutores.map((item, i) => `
             <div class="chip">
-                <span>${item}</span>
+                <span style="cursor: pointer;" onclick="editAutorEdit(${i})" title="Clic para editar nombre">${item}</span>
                 <span class="chip-remove" onclick="removeAutorEdit(${i})">&times;</span>
             </div>
         `).join('');
     }
+
+    window.editAutorEdit = function(idx) {
+        editAutorInput.value = currentEditAutores[idx];
+        currentEditAutores.splice(idx, 1);
+        drawAutores();
+        editAutorInput.focus();
+    };
 
     window.removeAutorEdit = function(idx) {
         currentEditAutores.splice(idx, 1);
