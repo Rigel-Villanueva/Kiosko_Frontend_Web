@@ -99,16 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editDescripcion').value = originalProject.descripcion;
         document.getElementById('editRepoGit').value = originalProject.evidencias?.repositorioGit || '';
 
-        // Listas (Autores) clonan para no mutar el estado original aún
-        currentEditAutores.length = 0;
+        currentEditAutores = [];
         if (originalProject.autoresCorreos) {
-            currentEditAutores.push(...originalProject.autoresCorreos);
+            currentEditAutores = [...originalProject.autoresCorreos];
         }
-
-        renderChips('editAutoresList', currentEditAutores, (idx) => {
-            currentEditAutores.splice(idx, 1);
-            renderChips('editAutoresList', currentEditAutores, arguments.callee);
-        });
+        drawAutores();
 
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -125,43 +120,40 @@ document.addEventListener('DOMContentLoaded', () => {
         originalProject = null;
     }
 
-    // ── Add Autores / Tech to edit list ──
-    const setupAdder = (inputId, btnId, list, listContainerId) => {
-        const input = document.getElementById(inputId);
-        const btn = document.getElementById(btnId);
+    // ── Add Autores ──
+    const editAutorInput = document.getElementById('editAutorInput');
+    const editAddAutorBtn = document.getElementById('editAddAutor');
+    const editAutoresList = document.getElementById('editAutoresList');
 
-        const addAction = () => {
-            const val = input.value.trim();
-            if (!val) return;
-            if (list.includes(val)) { showToast('Ya está agregado', 'warning'); return; }
-            
-            list.push(val);
-            renderChips(listContainerId, list, (idx) => {
-                list.splice(idx, 1);
-                renderChips(listContainerId, list, arguments.callee);
-            });
-            input.value = '';
-            input.focus();
-        };
+    function addEditAutor() {
+        const val = editAutorInput.value.trim();
+        if (!val) return;
+        if (currentEditAutores.includes(val)) { showToast('Ya está agregado', 'warning'); return; }
+        
+        currentEditAutores.push(val);
+        drawAutores();
+        editAutorInput.value = '';
+        editAutorInput.focus();
+    }
 
-        btn.addEventListener('click', addAction);
-        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addAction(); } });
-    };
+    editAddAutorBtn.addEventListener('click', addEditAutor);
+    editAutorInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); addEditAutor(); }
+    });
 
-    setupAdder('editAutorInput', 'editAddAutor', currentEditAutores, 'editAutoresList');
-
-    function renderChips(containerId, list, onRemove) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = list.map((item, i) => `
+    function drawAutores() {
+        editAutoresList.innerHTML = currentEditAutores.map((item, i) => `
             <div class="chip">
                 <span>${item}</span>
-                <span class="chip-remove" data-idx="${i}">&times;</span>
+                <span class="chip-remove" onclick="removeAutorEdit(${i})">&times;</span>
             </div>
         `).join('');
-        container.querySelectorAll('.chip-remove').forEach(btn => {
-            btn.addEventListener('click', () => onRemove(parseInt(btn.dataset.idx)));
-        });
     }
+
+    window.removeAutorEdit = function(idx) {
+        currentEditAutores.splice(idx, 1);
+        drawAutores();
+    };
 
     // ── Guardar Cambios ──
     form.addEventListener('submit', async (e) => {
@@ -173,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Sobrescribimos lo que modificó el admin
         updatedProject.nombre = document.getElementById('editNombre').value.trim();
         updatedProject.descripcion = document.getElementById('editDescripcion').value.trim();
-        updatedProject.autoresCorreos = currentEditAutores;
+        updatedProject.autoresCorreos = [...currentEditAutores];
 
         // Asegurar que exista evidencias antes de mutarla
         if (!updatedProject.evidencias) updatedProject.evidencias = {};
