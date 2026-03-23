@@ -66,7 +66,7 @@
                 <table class="projects-table" id="projectsTable">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Proyecto</th>
                             <th>Autores</th>
                             <th>Estatus</th>
                             <th>Acciones</th>
@@ -114,14 +114,11 @@
                     <div class="chip-list" id="editAutoresList"></div>
                 </div>
 
-                <!-- ─── Gestión de Videos ─── -->
-                <div class="form-group">
-                    <label class="form-label">🎬 Videos del Proyecto</label>
-
-                    <!-- Lista de videos existentes -->
+                <!-- ─── Evidencias del Proyecto ─── -->
+                <div class="form-group edit-section">
+                    <h3 class="edit-section-title">🎬 Videos</h3>
                     <div id="editVideosList" class="video-list"></div>
-
-                    <!-- Agregar nuevo video -->
+                    
                     <div class="video-add-section">
                         <p class="video-add-title">Agregar nuevo video</p>
                         <div class="video-add-row">
@@ -136,9 +133,7 @@
                                 <span>Seleccionar video</span>
                             </div>
                         </div>
-                        <!-- Preview del archivo seleccionado -->
                         <div id="newVideoPreview" class="file-list"></div>
-                        <!-- Barra de progreso para subida de video -->
                         <div id="videoUploadProgress" class="video-upload-progress" style="display:none;">
                             <div class="progress-bar-track">
                                 <div class="progress-bar-fill" id="videoProgressBar"></div>
@@ -148,6 +143,40 @@
                         <button type="button" class="btn btn-primary btn-sm" id="addVideoBtn" style="margin-top:8px;" disabled>
                             ⬆️ Subir y Agregar Video
                         </button>
+                    </div>
+                </div>
+
+                <div class="form-group edit-section">
+                    <h3 class="edit-section-title">🖼️ Imágenes</h3>
+                    <div id="editImagesList" class="image-grid"></div>
+                    
+                    <div class="upload-zone upload-zone-sm" id="imageUploadZone" style="margin-top: 12px;">
+                        <input type="file" accept="image/*" multiple id="newImagesFile">
+                        <span class="upload-icon-sm">📷</span>
+                        <span>Seleccionar o arrastrar imágenes nuevas</span>
+                    </div>
+                    <div id="newImagesPreview" class="file-list"></div>
+                </div>
+
+                <div class="form-group edit-section">
+                    <h3 class="edit-section-title">📄 Documentos (PDF)</h3>
+                    <div id="editDocsList" class="doc-list"></div>
+                    
+                    <div class="upload-zone upload-zone-sm" id="docUploadZone" style="margin-top: 12px;">
+                        <input type="file" accept=".pdf" multiple id="newDocsFile">
+                        <span class="upload-icon-sm">📝</span>
+                        <span>Seleccionar o arrastrar PDFs nuevos</span>
+                    </div>
+                </div>
+
+                <div class="form-group edit-section">
+                    <h3 class="edit-section-title">📊 Diapositivas</h3>
+                    <div id="editDiapoWrap" class="doc-list"></div>
+                    
+                    <div class="upload-zone upload-zone-sm" id="diapoUploadZone" style="margin-top: 12px;">
+                        <input type="file" accept=".pdf,.pptx" id="newDiapoFile">
+                        <span class="upload-icon-sm">📊</span>
+                        <span>Reemplazar diapositivas actuales</span>
                     </div>
                 </div>
 

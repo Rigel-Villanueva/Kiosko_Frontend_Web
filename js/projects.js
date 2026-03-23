@@ -71,16 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.style.display = 'none';
         tableWrapper.style.display = 'block';
 
-        tbody.innerHTML = allProjects.map(p => `
+        tbody.innerHTML = allProjects.map(p => {
+            const img = p.evidencias?.imagenes?.[0] || null;
+            const thumbHtml = img
+                ? `<img src="${img}" alt="${p.nombre}" class="project-thumb" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="project-thumb-placeholder" style="display:none;">🖼️</span>`
+                : `<span class="project-thumb-placeholder">🖼️</span>`;
+
+            return `
             <tr>
-                <td style="font-weight: 500;">
-                    <div style="max-width:300px; overflow:hidden; text-overflow:ellipsis;" title="${p.nombre}">
-                        ${p.nombre}
+                <td>
+                    <div class="project-name-cell">
+                        <div class="project-thumb-wrap">${thumbHtml}</div>
+                        <div class="project-name-text">
+                            <span class="project-name" title="${p.nombre}">${p.nombre}</span>
+                            <span class="project-desc">${(p.descripcion || '').substring(0, 60)}${(p.descripcion || '').length > 60 ? '…' : ''}</span>
+                        </div>
                     </div>
                 </td>
                 <td>
-                    <div class="chip-list" style="flex-wrap: nowrap; max-width: 200px; overflow:hidden;">
-                        ${(p.autoresCorreos || []).map(a => `<span class="chip" style="font-size:0.7rem; padding: 2px 6px;">${a}</span>`).join('')}
+                    <div class="chip-list" style="flex-wrap: wrap; max-width: 220px;">
+                        ${(p.autoresCorreos || []).map(a => `<span class="chip chip-sm">${a}</span>`).join('')}
                     </div>
                 </td>
                 <td>
@@ -90,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="btn btn-ghost btn-sm edit-btn" data-id="${p.id}">✏️ Editar</button>
                 </td>
             </tr>
-        `).join('');
+        `}).join('');
 
         // Bind events
         document.querySelectorAll('.edit-btn').forEach(btn => {
@@ -101,35 +111,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // ════════════════════════════════════════════════════════
     // MODAL DE EDICIÓN
     // ════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════
+    // MODAL DE EDICIÓN Y GESTIÓN DE EVIDENCIAS
+    // ════════════════════════════════════════════════════════
+    let currentEditImages = [];
+    let currentEditDocs = [];
+    let currentEditDiapo = null;
+
     function openEditModal(id) {
         originalProject = allProjects.find(p => p.id === id);
         if (!originalProject) return;
 
-        // Llenar campos
+        // Llenar campos básicos
         document.getElementById('editId').value = originalProject.id;
         document.getElementById('editNombre').value = originalProject.nombre;
         document.getElementById('editDescripcion').value = originalProject.descripcion;
         document.getElementById('editRepoGit').value = originalProject.evidencias?.repositorioGit || '';
 
-        currentEditAutores = [];
-        if (originalProject.autoresCorreos) {
-            currentEditAutores = [...originalProject.autoresCorreos];
-        }
+        // Autores
+        currentEditAutores = [...(originalProject.autoresCorreos || [])];
         drawAutores();
 
-        // Cargar videos existentes
-        currentEditVideos = [];
-        if (originalProject.evidencias?.videos) {
-            currentEditVideos = originalProject.evidencias.videos.map(v => ({ ...v }));
-        }
+        // ── Evidencias ──
+        currentEditVideos = [...(originalProject.evidencias?.videos || [])];
         drawVideos();
 
+        currentEditImages = [...(originalProject.evidencias?.imagenes || [])];
+        drawImages();
+
+        currentEditDocs = [...(originalProject.evidencias?.documentosPdf || [])];
+        drawDocs();
+
+        currentEditDiapo = originalProject.evidencias?.diapositivas || null;
+        drawDiapo();
+
         // Reset video upload state
-        pendingVideoFile = null;
-        newVideoFile.value = '';
-        newVideoPreview.innerHTML = '';
-        addVideoBtn.disabled = true;
-        videoUploadProgress.style.display = 'none';
+        window.clearPendingVideo();
 
         modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
@@ -146,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         originalProject = null;
     }
 
-    // ── Add Autores ──
+    // ── Autores ──
     const editAutorInput = document.getElementById('editAutorInput');
     const editAddAutorBtn = document.getElementById('editAddAutor');
     const editAutoresList = document.getElementById('editAutoresList');
@@ -155,44 +172,53 @@ document.addEventListener('DOMContentLoaded', () => {
         const val = editAutorInput.value.trim();
         if (!val) return;
         if (currentEditAutores.includes(val)) { showToast('Ya está agregado', 'warning'); return; }
-        
         currentEditAutores.push(val);
         drawAutores();
         editAutorInput.value = '';
-        editAutorInput.focus();
     }
-
     editAddAutorBtn.addEventListener('click', addEditAutor);
-    editAutorInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') { e.preventDefault(); addEditAutor(); }
-    });
+    editAutorInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addEditAutor(); }});
 
     function drawAutores() {
         editAutoresList.innerHTML = currentEditAutores.map((item, i) => `
             <div class="chip">
-                <span style="cursor: pointer;" onclick="editAutorEdit(${i})" title="Clic para editar nombre">${item}</span>
+                <span style="cursor: pointer;" onclick="editAutorEdit(${i})" title="Editar">${item}</span>
                 <span class="chip-remove" onclick="removeAutorEdit(${i})">&times;</span>
             </div>
         `).join('');
     }
+    window.editAutorEdit = (idx) => { editAutorInput.value = currentEditAutores[idx]; currentEditAutores.splice(idx, 1); drawAutores(); editAutorInput.focus(); };
+    window.removeAutorEdit = (idx) => { currentEditAutores.splice(idx, 1); drawAutores(); };
 
-    window.editAutorEdit = function(idx) {
-        editAutorInput.value = currentEditAutores[idx];
-        currentEditAutores.splice(idx, 1);
-        drawAutores();
-        editAutorInput.focus();
-    };
+    // ── Módulo de Subida Reutilizable ──
+    async function apiUploadFile(file, progressCb) {
+        const formData = new FormData();
+        formData.append('requestFile', file);
+        // Simulamos onProgress con fetch (fetch no soporta upload progress nativo, usamos el spinner por ahora)
+        if(progressCb) progressCb(50);
+        const res = await fetch(`${API_BASE_URL}/api/Uploads`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${getToken()}` },
+            body: formData
+        });
+        if(progressCb) progressCb(100);
+        if (!res.ok) throw new Error(`Error al subir ${file.name}`);
+        const data = await res.json();
+        return data.url;
+    }
 
-    window.removeAutorEdit = function(idx) {
-        currentEditAutores.splice(idx, 1);
-        drawAutores();
-    };
+    function extractFilename(url) {
+        try {
+            const parts = url.split('/');
+            let name = decodeURIComponent(parts[parts.length - 1]);
+            return name.substring(0, 35) + (name.length > 35 ? '...' : '');
+        } catch { return 'Archivo'; }
+    }
+
 
     // ════════════════════════════════════════════════════════
-    // GESTIÓN DE VIDEOS
+    // 1. VIDEOS (Embedded)
     // ════════════════════════════════════════════════════════
-
-    /** Retorna el emoji + label para un tipo de video */
     function videoTypeLabel(titulo) {
         const t = (titulo || '').toLowerCase();
         if (t === 'intro') return { emoji: '🎬', label: 'Intro', cls: 'video-badge-intro' };
@@ -200,194 +226,218 @@ document.addEventListener('DOMContentLoaded', () => {
         return { emoji: '📹', label: titulo || 'Otro', cls: 'video-badge-otro' };
     }
 
-    /** Valida si se puede asignar un tipo (max 1 Intro, max 1 Pitch) */
     function canAssignType(newType, excludeIndex) {
         const t = newType.toLowerCase();
         if (t !== 'intro' && t !== 'pitch') return true;
-        const count = currentEditVideos.filter((v, i) => i !== excludeIndex && v.titulo.toLowerCase() === t).length;
-        return count === 0;
+        return currentEditVideos.filter((v, i) => i !== excludeIndex && v.titulo.toLowerCase() === t).length === 0;
     }
 
-    /** Renderiza la lista de videos existentes */
     function drawVideos() {
         if (currentEditVideos.length === 0) {
             editVideosList.innerHTML = '<p class="video-empty">No hay videos en este proyecto.</p>';
             return;
         }
-
         editVideosList.innerHTML = currentEditVideos.map((v, i) => {
             const info = videoTypeLabel(v.titulo);
-            // Extraer nombre del archivo de la URL
-            let fileName = 'Video';
-            try {
-                const urlParts = v.url.split('/');
-                fileName = decodeURIComponent(urlParts[urlParts.length - 1]).substring(0, 40);
-            } catch { }
-
             return `
-                <div class="video-card">
-                    <div class="video-card-info">
+                <div class="evidencia-card video-card">
+                    <div class="video-card-header">
                         <span class="video-badge ${info.cls}">${info.emoji} ${info.label}</span>
-                        <a href="${v.url}" target="_blank" class="video-link" title="${v.url}">
-                            🔗 ${fileName}
-                        </a>
+                        <div class="video-card-actions">
+                            <select class="form-input video-type-select-sm" onchange="changeVideoType(${i}, this.value)">
+                                <option value="Intro" ${v.titulo.toLowerCase() === 'intro' ? 'selected' : ''}>🎬 Intro</option>
+                                <option value="Pitch" ${v.titulo.toLowerCase() === 'pitch' ? 'selected' : ''}>🎤 Pitch</option>
+                                <option value="Otro" ${(v.titulo.toLowerCase() !== 'intro' && v.titulo.toLowerCase() !== 'pitch') ? 'selected' : ''}>📹 Otro</option>
+                            </select>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeVideo(${i})" title="Eliminar">🗑️</button>
+                        </div>
                     </div>
-                    <div class="video-card-actions">
-                        <select class="form-input video-type-select-sm" data-idx="${i}" onchange="changeVideoType(${i}, this.value)">
-                            <option value="Intro" ${v.titulo.toLowerCase() === 'intro' ? 'selected' : ''}>🎬 Intro</option>
-                            <option value="Pitch" ${v.titulo.toLowerCase() === 'pitch' ? 'selected' : ''}>🎤 Pitch</option>
-                            <option value="Otro" ${(v.titulo.toLowerCase() !== 'intro' && v.titulo.toLowerCase() !== 'pitch') ? 'selected' : ''}>📹 Otro</option>
-                        </select>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeVideo(${i})" title="Eliminar video">
-                            🗑️
-                        </button>
+                    <div class="video-player-wrap">
+                        <video controls preload="metadata" class="embedded-video">
+                            <source src="${v.url}#t=0.1" type="video/mp4">
+                            Tu navegador no soporta el elemento video.
+                        </video>
                     </div>
                 </div>
             `;
         }).join('');
     }
 
-    /** Cambiar tipo de un video */
-    window.changeVideoType = function(idx, newType) {
-        if (!canAssignType(newType, idx)) {
-            showToast(`Ya existe un video de tipo "${newType}". Solo se permite 1.`, 'warning');
-            drawVideos(); // re-render to reset the select
-            return;
-        }
+    window.changeVideoType = (idx, newType) => {
+        if (!canAssignType(newType, idx)) { showToast(`Ya existe un video de tipo "${newType}"`, 'warning'); drawVideos(); return; }
         currentEditVideos[idx].titulo = newType;
         drawVideos();
-        showToast(`Tipo cambiado a "${newType}"`, 'success');
     };
+    window.removeVideo = (idx) => { currentEditVideos.splice(idx, 1); drawVideos(); };
 
-    /** Eliminar un video de la lista local */
-    window.removeVideo = function(idx) {
-        const video = currentEditVideos[idx];
-        const info = videoTypeLabel(video.titulo);
-        currentEditVideos.splice(idx, 1);
-        drawVideos();
-        showToast(`Video "${info.label}" eliminado`, 'success');
-    };
-
-    // ── Agregar nuevo video ──
-    const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
-
+    // Subir Video
     newVideoFile.addEventListener('change', () => {
         if (newVideoFile.files.length > 0) {
             const file = newVideoFile.files[0];
-            if (file.size > MAX_VIDEO_SIZE) {
-                showToast(`"${file.name}" excede 50 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`, 'error');
-                newVideoFile.value = '';
-                pendingVideoFile = null;
-                addVideoBtn.disabled = true;
-                newVideoPreview.innerHTML = '';
-                return;
-            }
+            if (file.size > 50 * 1024 * 1024) { showToast('El video excede 50MB', 'error'); return window.clearPendingVideo(); }
             pendingVideoFile = file;
             addVideoBtn.disabled = false;
-            newVideoPreview.innerHTML = `
-                <div class="file-item">
-                    <span class="file-item-name" title="${file.name}">${file.name}</span>
-                    <span class="file-item-remove" onclick="clearPendingVideo()">✕ Quitar</span>
-                </div>
-            `;
+            newVideoPreview.innerHTML = `<div class="file-item"><span class="file-item-name">${file.name}</span><span class="file-item-remove" onclick="clearPendingVideo()">✕ Quitar</span></div>`;
         }
     });
 
     window.clearPendingVideo = function() {
-        pendingVideoFile = null;
-        newVideoFile.value = '';
-        newVideoPreview.innerHTML = '';
-        addVideoBtn.disabled = true;
+        pendingVideoFile = null; newVideoFile.value = ''; newVideoPreview.innerHTML = ''; addVideoBtn.disabled = true;
     };
 
     addVideoBtn.addEventListener('click', async () => {
         if (!pendingVideoFile) return;
-
         const tipo = newVideoType.value;
-
-        // Validar tipo
-        if (!canAssignType(tipo, -1)) {
-            showToast(`Ya existe un video de tipo "${tipo}". Solo se permite 1.`, 'warning');
-            return;
-        }
-
-        // UI: uploading state
-        addVideoBtn.disabled = true;
-        addVideoBtn.textContent = 'Subiendo…';
-        videoUploadProgress.style.display = 'flex';
-        videoProgressBar.style.width = '0%';
+        if (!canAssignType(tipo, -1)) return showToast(`Ya existe un video de tipo "${tipo}"`, 'warning');
+        
+        addVideoBtn.disabled = true; addVideoBtn.textContent = 'Subiendo…';
+        videoUploadProgress.style.display = 'flex'; videoProgressBar.style.width = '0%';
         videoProgressText.textContent = `Subiendo: ${pendingVideoFile.name}`;
 
         try {
-            const formData = new FormData();
-            formData.append('requestFile', pendingVideoFile);
-
-            const res = await fetch(`${API_BASE_URL}/api/Uploads`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${getToken()}` },
-                body: formData
-            });
-
-            videoProgressBar.style.width = '100%';
-
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData.mensaje || `Error al subir ${pendingVideoFile.name}`);
-            }
-
-            const data = await res.json();
-            
-            // Agregar al array local
-            currentEditVideos.push({ titulo: tipo, url: data.url });
+            const url = await apiUploadFile(pendingVideoFile, (pct) => videoProgressBar.style.width = pct+'%');
+            currentEditVideos.push({ titulo: tipo, url });
             drawVideos();
-            showToast(`Video "${tipo}" agregado exitosamente`, 'success');
-
-            // Reset
             window.clearPendingVideo();
-
-        } catch (err) {
-            showToast(`Error: ${err.message}`, 'error');
-        } finally {
-            addVideoBtn.disabled = false;
-            addVideoBtn.textContent = '⬆️ Subir y Agregar Video';
+            showToast(`Video agregado`, 'success');
+        } catch (err) { showToast(err.message, 'error'); } 
+        finally {
+            addVideoBtn.disabled = false; addVideoBtn.textContent = '⬆️ Subir y Agregar Video';
             videoUploadProgress.style.display = 'none';
         }
     });
 
-    // Drag & drop for video upload zone
-    const videoUploadZone = document.getElementById('videoUploadZone');
-    videoUploadZone.addEventListener('dragover', (e) => { e.preventDefault(); videoUploadZone.classList.add('dragover'); });
-    videoUploadZone.addEventListener('dragleave', () => videoUploadZone.classList.remove('dragover'));
-    videoUploadZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        videoUploadZone.classList.remove('dragover');
-        if (e.dataTransfer.files.length) {
-            newVideoFile.files = e.dataTransfer.files;
-            newVideoFile.dispatchEvent(new Event('change'));
+
+    // ════════════════════════════════════════════════════════
+    // 2. IMÁGENES
+    // ════════════════════════════════════════════════════════
+    const editImagesList = document.getElementById('editImagesList');
+    const newImagesFile = document.getElementById('newImagesFile');
+    const newImagesPreview = document.getElementById('newImagesPreview');
+
+    function drawImages() {
+        if (currentEditImages.length === 0) {
+            editImagesList.innerHTML = '<p class="video-empty">No hay imágenes en este proyecto.</p>';
+            return;
         }
+        editImagesList.innerHTML = currentEditImages.map((url, i) => `
+            <div class="image-thumb-card">
+                <img src="${url}" alt="Imagen del Proyecto" class="edit-img-preview" onclick="window.open('${url}','_blank')">
+                <button type="button" class="btn btn-danger btn-sm img-delete-btn" onclick="removeImage(${i})">✕</button>
+            </div>
+        `).join('');
+    }
+    window.removeImage = (idx) => { currentEditImages.splice(idx, 1); drawImages(); };
+
+    newImagesFile.addEventListener('change', async () => {
+        if (!newImagesFile.files.length) return;
+        newImagesPreview.innerHTML = '<div class="spinner inline-spinner"></div> Subiendo imágenes...';
+        
+        try {
+            for (const file of Array.from(newImagesFile.files)) {
+                const url = await apiUploadFile(file);
+                currentEditImages.push(url);
+            }
+            drawImages();
+            showToast('Imágenes agregadas', 'success');
+        } catch (err) { showToast(err.message, 'error'); }
+        finally { newImagesFile.value = ''; newImagesPreview.innerHTML = ''; }
     });
 
-    // ── Guardar Cambios ──
+
+    // ════════════════════════════════════════════════════════
+    // 3. DOCUMENTOS PDF
+    // ════════════════════════════════════════════════════════
+    const editDocsList = document.getElementById('editDocsList');
+    const newDocsFile = document.getElementById('newDocsFile');
+
+    function drawDocs() {
+        if (currentEditDocs.length === 0) {
+            editDocsList.innerHTML = '<p class="video-empty">No hay documentos PDF.</p>';
+            return;
+        }
+        editDocsList.innerHTML = currentEditDocs.map((url, i) => `
+            <div class="doc-card">
+                <div class="doc-info">
+                    <span class="doc-icon">📄</span>
+                    <a href="${url}" target="_blank" class="doc-link">${extractFilename(url)}</a>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeDoc(${i})">🗑️</button>
+            </div>
+        `).join('');
+    }
+    window.removeDoc = (idx) => { currentEditDocs.splice(idx, 1); drawDocs(); };
+
+    newDocsFile.addEventListener('change', async () => {
+        if (!newDocsFile.files.length) return;
+        try {
+            for (const file of Array.from(newDocsFile.files)) {
+                if(file.type !== 'application/pdf') { showToast(`${file.name} no es PDF`, 'warning'); continue; }
+                const url = await apiUploadFile(file);
+                currentEditDocs.push(url);
+            }
+            drawDocs();
+            showToast('Documentos agregados', 'success');
+        } catch (err) { showToast(err.message, 'error'); }
+        finally { newDocsFile.value = ''; }
+    });
+
+
+    // ════════════════════════════════════════════════════════
+    // 4. DIAPOSITIVAS
+    // ════════════════════════════════════════════════════════
+    const editDiapoWrap = document.getElementById('editDiapoWrap');
+    const newDiapoFile = document.getElementById('newDiapoFile');
+
+    function drawDiapo() {
+        if (!currentEditDiapo) {
+            editDiapoWrap.innerHTML = '<p class="video-empty">No hay diapositivas.</p>';
+            return;
+        }
+        editDiapoWrap.innerHTML = `
+            <div class="doc-card">
+                <div class="doc-info">
+                    <span class="doc-icon">📊</span>
+                    <a href="${currentEditDiapo}" target="_blank" class="doc-link">${extractFilename(currentEditDiapo)}</a>
+                </div>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeDiapo()">🗑️</button>
+            </div>
+        `;
+    }
+    window.removeDiapo = () => { currentEditDiapo = null; drawDiapo(); };
+
+    newDiapoFile.addEventListener('change', async () => {
+        if (!newDiapoFile.files.length) return;
+        try {
+            const url = await apiUploadFile(newDiapoFile.files[0]);
+            currentEditDiapo = url;
+            drawDiapo();
+            showToast('Diapositivas actualizadas', 'success');
+        } catch (err) { showToast(err.message, 'error'); }
+        finally { newDiapoFile.value = ''; }
+    });
+
+
+    // ════════════════════════════════════════════════════════
+    // GUARDAR CAMBIOS AL BACKEND
+    // ════════════════════════════════════════════════════════
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 1. Tomamos el proyecto original entero
         const updatedProject = { ...originalProject };
-
-        // 2. Sobrescribimos lo que modificó el admin
         updatedProject.nombre = document.getElementById('editNombre').value.trim();
         updatedProject.descripcion = document.getElementById('editDescripcion').value.trim();
         updatedProject.autoresCorreos = [...currentEditAutores];
 
-        // Asegurar que exista evidencias antes de mutarla
         if (!updatedProject.evidencias) updatedProject.evidencias = {};
-        const repoGit = document.getElementById('editRepoGit').value.trim();
-        updatedProject.evidencias.repositorioGit = repoGit || null;
-
-        // 3. Actualizar videos
+        updatedProject.evidencias.repositorioGit = document.getElementById('editRepoGit').value.trim() || null;
+        
+        // Asignar todas las evidencias actualizadas
         updatedProject.evidencias.videos = [...currentEditVideos];
+        updatedProject.evidencias.imagenes = [...currentEditImages];
+        updatedProject.evidencias.documentosPdf = [...currentEditDocs];
+        updatedProject.evidencias.diapositivas = currentEditDiapo;
 
-        // UI state
         saveBtn.disabled = true;
         document.getElementById('saveEditText').textContent = 'Guardando…';
         document.getElementById('saveSpinner').style.display = 'block';
@@ -395,10 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`${API_BASE_URL}/api/Proyectos/${updatedProject.id}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
-                },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
                 body: JSON.stringify(updatedProject)
             });
 
@@ -408,12 +455,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             showToast('Proyecto actualizado correctamente', 'success');
-            
-            // Actualizar tabla local en memoria para no repetición de fetch
             const idx = allProjects.findIndex(p => p.id === updatedProject.id);
             if (idx !== -1) allProjects[idx] = updatedProject;
             renderTable();
-
             closeModal();
         } catch (err) {
             showToast(`Error: ${err.message}`, 'error');
