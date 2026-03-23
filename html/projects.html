@@ -114,6 +114,43 @@
                     <div class="chip-list" id="editAutoresList"></div>
                 </div>
 
+                <!-- ─── Gestión de Videos ─── -->
+                <div class="form-group">
+                    <label class="form-label">🎬 Videos del Proyecto</label>
+
+                    <!-- Lista de videos existentes -->
+                    <div id="editVideosList" class="video-list"></div>
+
+                    <!-- Agregar nuevo video -->
+                    <div class="video-add-section">
+                        <p class="video-add-title">Agregar nuevo video</p>
+                        <div class="video-add-row">
+                            <select class="form-input video-type-select" id="newVideoType">
+                                <option value="Intro">🎬 Intro</option>
+                                <option value="Pitch">🎤 Pitch</option>
+                                <option value="Otro">📹 Otro</option>
+                            </select>
+                            <div class="upload-zone upload-zone-sm" id="videoUploadZone">
+                                <input type="file" accept="video/*" id="newVideoFile">
+                                <span class="upload-icon-sm">📤</span>
+                                <span>Seleccionar video</span>
+                            </div>
+                        </div>
+                        <!-- Preview del archivo seleccionado -->
+                        <div id="newVideoPreview" class="file-list"></div>
+                        <!-- Barra de progreso para subida de video -->
+                        <div id="videoUploadProgress" class="video-upload-progress" style="display:none;">
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill" id="videoProgressBar"></div>
+                            </div>
+                            <span class="video-progress-text" id="videoProgressText">Subiendo…</span>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" id="addVideoBtn" style="margin-top:8px;" disabled>
+                            ⬆️ Subir y Agregar Video
+                        </button>
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" id="cancelEdit">Cancelar</button>
                     <button type="submit" class="btn btn-primary" id="saveEditBtn">
